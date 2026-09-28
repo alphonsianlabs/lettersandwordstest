@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachers&rsquo; Day Portal — Messages</title>
+<meta name="description" content="Browse public Teachers' Day messages or write your own letter to a teacher at St. Alphonsus Catholic School.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="compose">
+
+  <div class="sky" aria-hidden="true">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="glow"></div>
+    <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
+    <span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
+    <span class="star s7"></span><span class="star s8"></span><span class="star s9"></span>
+    <span class="star s10"></span><span class="star s11"></span><span class="star s12"></span>
+    <span class="star s13"></span><span class="star s14"></span><span class="star s15"></span>
+    <span class="star s16"></span>
+  </div>
+
+  <header class="topbar">
+    <h1 class="topbar-title">Happy Teachers&rsquo; Day!</h1>
+  </header>
+
+  <main class="board">
+
+    <section class="countdown countdown--compact glass" aria-live="polite">
+      <p class="countdown-label" id="countdownLabel">Message reveal in</p>
+      <span class="countdown-unit"><span class="num" id="days">00</span><span class="unit-label">d</span></span>
+      <span class="countdown-unit"><span class="num" id="hours">00</span><span class="unit-label">h</span></span>
+      <span class="countdown-unit"><span class="num" id="minutes">00</span><span class="unit-label">m</span></span>
+      <span class="countdown-unit"><span class="num" id="seconds">00</span><span class="unit-label">s</span></span>
+    </section>
+
+    <div class="toolbar">
+      <div class="search-bar glass">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="search" id="searchInput" placeholder="Search subjects, teachers, letters" aria-label="Search">
+      </div>
+      <div class="seg glass" role="group" aria-label="View">
+        <button type="button" data-view="orbit" aria-pressed="true">Orbit</button>
+        <button type="button" data-view="grid" aria-pressed="false">List</button>
+      </div>
+    </div>
+
+    <div class="explorer">
+      <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+      <div id="stage" class="stage" aria-live="polite"></div>
+    </div>
+
+    <button type="button" class="btn-gold glass create-btn" id="createLetterBtn">Create a letter</button>
+
+  </main>
+
+  <dialog class="letter-dialog" id="letterDialog" aria-labelledby="dialogTitle">
+    <form class="letter-form glass" id="letterForm">
+      <h2 class="panel-title" id="dialogTitle">Submit your message</h2>
+
+      <label for="toSelect">To</label>
+      <select id="toSelect" name="to" required></select>
+
+      <label for="letterText">Your message</label>
+      <textarea id="letterText" name="text" maxlength="600" placeholder="Type your message here..." required></textarea>
+
+      <label id="paletteLabel">Background color</label>
+      <div class="palette" id="palette" role="radiogroup" aria-labelledby="paletteLabel"></div>
+
+      <label for="fromInput">From</label>
+      <input type="text" id="fromInput" name="from" maxlength="60" placeholder="Your name">
+      <label class="check"><input type="checkbox" name="anon"> Send anonymously</label>
+      <label class="check"><input type="checkbox" name="pub" checked> Show on the public board</label>
+
+      <p class="form-status" id="formStatus" role="status"></p>
+      <div class="actions">
+        <button type="submit" class="btn-gold glass">Submit</button>
+        <button type="button" class="btn-ghost" id="cancelLetter">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="js/countdown.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/compose.js"></script>
+</body>
+</html>
