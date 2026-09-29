@@ -14,6 +14,7 @@ const els = {
   section: document.querySelector(".countdown"),
   form: document.getElementById("loginForm"),
   email: document.getElementById("schoolEmail"),
+  error: document.getElementById("loginError"),
 };
 
 let timerId;
@@ -56,16 +57,36 @@ function tick() {
 tick();
 timerId = setInterval(tick, 1000);
 
-// Student login is open the whole time — this just handles the
-// submit. Replace with a real fetch() call to your PythonAnywhere
-// login endpoint once that URL is finalized.
-els.form.addEventListener("submit", function (event) {
-  event.preventDefault();
-  // TODO: connect to backend API, e.g.:
-  // fetch("https://yourusername.pythonanywhere.com/api/login", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify({ email: els.email.value }),
-  // });
-  console.log("Login submitted:", els.email.value);
-});
+// Login is only wired up on index.html (compose.html loads this same
+// file just for the timer and has no #loginForm, so skip the rest there).
+if (els.form) {
+  els.form.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    const email = els.email.value.trim();
+    if (els.error) els.error.style.display = "none";
+
+    // Student emails contain their school ID number, e.g. 1004576@sacs.edu.ph
+    if (/\d/.test(email)) {
+      sessionStorage.setItem("studentEmail", email);
+      window.location.href = "compose.html";
+      return;
+    }
+
+    // Otherwise check it against the faculty list from js/data.js
+    // (format: [initials].[surname]@sacs.edu.ph, e.g. aj.refulle@sacs.edu.ph)
+    const teacher = typeof findTeacherByEmail === "function" ? findTeacherByEmail(email) : null;
+    if (teacher) {
+      sessionStorage.setItem("teacherEmail", teacher.email);
+      window.location.href = "teacherlandingpagelocked.html";
+      return;
+    }
+
+    // No match — let them try again instead of redirecting nowhere.
+    if (els.error) {
+      els.error.style.display = "block";
+    } else {
+      alert("We couldn't match that email to a student or teacher account.");
+    }
+  });
+}
