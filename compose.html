@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Teachers&rsquo; Day Portal — Messages</title>
 <meta name="description" content="Browse public Teachers' Day messages or write your own letter to a teacher at St. Alphonsus Catholic School.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -70,13 +70,11 @@ body {
   transition: background 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
 }
 
-body.transition-out {
-  opacity: 0;
-  transform: scale(0.98);
-}
-body.transition-in {
-  animation: fadeScaleIn 0.4s ease forwards;
-}
+/* Page fade. Named page-* so it doesn't collide with the stage transitions, and
+   with no fill-mode so no lingering transform/filter on <body> (which would break
+   the position:fixed "Create a letter" button). */
+body.page-enter { animation: fadeScaleIn 0.4s ease; }
+body.page-exit { opacity: 0; transform: scale(0.98); }
 
 @keyframes fadeScaleIn {
   from { opacity: 0; transform: scale(0.98); }
@@ -238,7 +236,6 @@ body.transition-in {
 }
 
 .btn-gold:hover {
-  transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(242, 183, 5, 0.18);
 }
 
@@ -248,7 +245,7 @@ body.transition-in {
 }
 
 .btn-gold:active {
-  transform: translateY(0) scale(0.97);
+  filter: brightness(0.95);
 }
 
 body.compose {
@@ -593,6 +590,8 @@ body.compose {
   pointer-events: none;
 }
 
+.card.is-dim, .letter.is-dim { opacity: 0.18; pointer-events: none; }
+
 .planet-node {
   display: flex;
   flex-direction: column;
@@ -772,8 +771,6 @@ body.compose {
   padding: 1rem 1.4rem;
   flex: none;
 }
-.create-btn:hover { transform: translateX(-50%) translateY(-2px); }
-.create-btn:active { transform: translateX(-50%) scale(0.97); }
 
 .glass {
   --mouse-x: 50%;
@@ -807,7 +804,7 @@ body.compose {
 }
 </style>
 </head>
-<body class="compose transition-in">
+<body class="compose page-enter">
 
   <div class="sky" aria-hidden="true">
     <div class="orb o1"></div>
@@ -902,80 +899,31 @@ body.compose {
   </dialog>
 
   <script>
-/**
- * Teachers' Day Portal - Router & Auth Session Guard
- */
 (function () {
   'use strict';
-
-  if (window.__SACS_ROUTER_INIT) return;
-  window.__SACS_ROUTER_INIT = true;
-
   const AUTH_KEY = 'sacs_portal_user';
+  let user = null;
+  try { user = JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) {}
 
-  function getCurrentUser() {
-    try {
-      return JSON.parse(localStorage.getItem(AUTH_KEY));
-    } catch {
-      return null;
-    }
+  // Must be logged in as a student to write letters
+  if (!user || !user.email) { window.location.replace('index.html'); return; }
+  if (user.role === 'teacher') { window.location.replace('teacher_portal.html'); return; }
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      try { localStorage.removeItem(AUTH_KEY); } catch (err) {}
+      document.body.classList.add('page-exit');
+      setTimeout(() => { window.location.href = 'index.html'; }, 300);
+    });
   }
-
-  function setCurrentUser(userData) {
-    localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
-  }
-
-  function clearSession() {
-    localStorage.removeItem(AUTH_KEY);
-  }
-
-  function handleLogin(email) {
-    const cleanEmail = email.trim().toLowerCase();
-    const isTeacher = cleanEmail.includes('teacher') || cleanEmail.includes('santos') || !cleanEmail.startsWith('100');
-    
-    const userData = {
-      email: cleanEmail,
-      role: isTeacher ? 'teacher' : 'student',
-      loginTime: Date.now()
-    };
-    
-    setCurrentUser(userData);
-    window.location.href = isTeacher ? 'teacher_portal.html' : 'compose.html';
-  }
-
-  function attachInterceptors() {
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        clearSession();
-        window.location.href = 'index.html';
-      });
-    }
-
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-      loginForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const emailInput = loginForm.querySelector('input[name="email"]');
-        if (emailInput && emailInput.value) {
-          handleLogin(emailInput.value);
-        }
-      });
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    attachInterceptors();
-    
-    // Fallback: Ensure active student session when testing compose directly
-    let user = getCurrentUser();
-    if (!user) {
-      user = { email: 'student@sacs.edu.ph', role: 'student', loginTime: Date.now() };
-      setCurrentUser(user);
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) {
+      document.body.classList.remove('page-exit');
+      if (!localStorage.getItem(AUTH_KEY)) window.location.replace('index.html');
     }
   });
-
 })();
 
 /* ===========================================================
@@ -987,7 +935,9 @@ const REVEAL_TIME = new Date("2026-10-02T16:00:00+08:00").getTime();
 // Initialize Supabase Client
 const SUPABASE_URL = "https://qlmyhubnfjjhqrnugbvl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsbXlodWJuZmpqaHFybnVnYnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NDg0NzksImV4cCI6MjEwNjIyNDQ3OX0.HaOL_CKuCk8ZoUNTh308seJs3RR4ASIXH_9zCANFFNw";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabaseClient = null;
+try { supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
+catch (err) { console.error("Supabase failed to load:", err); }
 
 const els = {
   days: document.getElementById("days"),
@@ -1115,6 +1065,7 @@ let LETTERS = {};
 
 async function fetchLetters() {
   try {
+    if (!supabaseClient) throw new Error("Supabase client not available");
     const { data, error } = await supabaseClient
       .from('letters')
       .select('*')
@@ -1476,10 +1427,12 @@ window.addEventListener("resize", () => {
   if (active) updateSegIndicator(active);
 });
 
-requestAnimationFrame(() => {
+function syncSegIndicator() {
   const active = document.querySelector('[data-view][aria-pressed="true"]');
   if (active) updateSegIndicator(active);
-});
+}
+requestAnimationFrame(syncSegIndicator);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncSegIndicator);
 
 search.addEventListener("input", applySearch);
 
@@ -1524,6 +1477,7 @@ form.addEventListener("submit", async (e) => {
   status.textContent = "Sending...";
 
   try {
+    if (!supabaseClient) throw new Error("Supabase client not available");
     const { error } = await supabaseClient
       .from('letters')
       .insert([
@@ -1581,14 +1535,15 @@ form.addEventListener("submit", async (e) => {
     }
   }
   document.addEventListener("mousemove", (event) => {
-    const el = event.target.closest(".glass");
+    const el = event.target.closest ? event.target.closest(".glass") : null;
     if (el !== active && active) reset(active);
     active = el;
     if (!el) return;
     const rect = el.getBoundingClientRect();
     apply(el, event.clientX - rect.left, event.clientY - rect.top, rect);
   });
-  document.addEventListener("mouseleave", () => { if (active) reset(active); active = null; }, true);
+  document.addEventListener("mouseleave", (e) => { if (active && e.target === active) { reset(active); active = null; } }, true);
+  document.addEventListener("mouseout", (e) => { if (!e.relatedTarget && active) { reset(active); active = null; } });
 })();
 
 // Initial UI Render & Fetch
