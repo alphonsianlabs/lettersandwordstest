@@ -1,0 +1,1599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachers&rsquo; Day Portal — Messages</title>
+<meta name="description" content="Browse public Teachers' Day messages or write your own letter to a teacher at St. Alphonsus Catholic School.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Supabase JS Client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg-1: #100d33;
+  --bg-2: #2c2166;
+  --bg-3: #4b3f91;
+  --accent: #8b6fe8;
+  --gold: #f2b705;
+  --gold-soft: #ffd85c;
+  --text: #f5f3ff;
+  --text-dim: #c6bfe8;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(8, 6, 26, 0.45);
+  --star-opacity: 0.85;
+  --focus-ring: #ffd85c;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-1: #eef0fb;
+    --bg-2: #dcdaf6;
+    --bg-3: #c7c2ef;
+    --accent: #6c5ce7;
+    --gold: #b8790a;
+    --gold-soft: #e0a52e;
+    --text: #201a45;
+    --text-dim: #55507a;
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-shadow: rgba(90, 80, 150, 0.18);
+    --star-opacity: 0.35;
+    --focus-ring: #6c5ce7;
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow-x: hidden;
+  transition: background 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
+}
+
+body.transition-out {
+  opacity: 0;
+  transform: scale(0.98);
+}
+body.transition-in {
+  animation: fadeScaleIn 0.4s ease forwards;
+}
+
+@keyframes fadeScaleIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow {
+  position: absolute;
+  top: 8%;
+  right: 10%;
+  width: min(38vw, 420px);
+  height: min(38vw, 420px);
+  background: radial-gradient(circle, rgba(255, 216, 92, 0.35) 0%, rgba(255, 216, 92, 0) 70%);
+  filter: blur(4px);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  filter: blur(2px);
+  opacity: 0.55;
+}
+
+.o1 {
+  width: min(60vw, 340px);
+  height: min(60vw, 340px);
+  top: -12%;
+  left: -14%;
+  background:
+    radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.22), transparent 55%),
+    radial-gradient(circle, rgba(242, 183, 5, 0.16) 0%, rgba(242, 183, 5, 0.02) 70%);
+}
+
+.o2 {
+  width: min(70vw, 400px);
+  height: min(70vw, 400px);
+  bottom: -18%;
+  right: -16%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(circle, rgba(139, 111, 232, 0.22) 0%, rgba(139, 111, 232, 0.02) 70%);
+}
+
+@media (prefers-color-scheme: light) {
+  .orb { opacity: 0.4; }
+}
+
+.star {
+  position: absolute;
+  background: linear-gradient(135deg, #fff, var(--gold-soft));
+  opacity: var(--star-opacity);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+.s1  { width: 34px; height: 34px; top: 12%; right: 14%; }
+.s2  { width: 14px; height: 14px; top: 22%; right: 26%; }
+.s3  { width: 10px; height: 10px; top: 8%;  right: 30%; }
+.s4  { width: 18px; height: 18px; top: 30%; right: 6%;  }
+.s5  { width: 12px; height: 12px; top: 70%; left: 8%;   }
+.s6  { width: 8px;  height: 8px;  top: 82%; left: 18%;  }
+.s7  { width: 16px; height: 16px; top: 60%; left: 4%;   }
+.s8  { width: 10px; height: 10px; top: 5%;  left: 46%;  }
+.s9  { width: 7px;  height: 7px;  top: 16%; left: 58%;  }
+.s10 { width: 13px; height: 13px; top: 40%; left: 12%;  }
+.s11 { width: 9px;  height: 9px;  top: 48%; right: 8%;  }
+.s12 { width: 15px; height: 15px; top: 88%; right: 22%; }
+.s13 { width: 6px;  height: 6px;  top: 93%; left: 44%;  }
+.s14 { width: 11px; height: 11px; top: 3%;  left: 20%;  }
+.s15 { width: 8px;  height: 8px;  top: 55%; left: 50%;  }
+.s16 { width: 12px; height: 12px; top: 75%; left: 60%;  }
+
+@media (prefers-reduced-motion: no-preference) {
+  .star { animation: twinkle 3.4s ease-in-out infinite; }
+  .s2  { animation-delay: 0.6s; }
+  .s3  { animation-delay: 1.2s; }
+  .s4  { animation-delay: 0.3s; }
+  .s5  { animation-delay: 1.6s; }
+  .s6  { animation-delay: 0.9s; }
+  .s7  { animation-delay: 2s;   }
+  .s8  { animation-delay: 1.1s; }
+  .s9  { animation-delay: 2.4s; }
+  .s10 { animation-delay: 0.4s; }
+  .s11 { animation-delay: 1.8s; }
+  .s12 { animation-delay: 0.7s; }
+  .s13 { animation-delay: 2.1s; }
+  .s14 { animation-delay: 1.4s; }
+  .s15 { animation-delay: 2.7s; }
+  .s16 { animation-delay: 0.2s; }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: calc(var(--star-opacity) * 0.5); transform: scale(0.9); }
+  50%      { opacity: var(--star-opacity); transform: scale(1.05); }
+}
+
+.glass {
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.5),
+    inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.5),
+    inset 8px -8px 20px -14px rgba(255, 255, 255, 0.4),
+    inset -8px 8px 20px -14px rgba(255, 255, 255, 0.4),
+    inset 0 0 24px rgba(0, 0, 0, 0.18),
+    0 18px 40px var(--glass-shadow);
+}
+
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    transparent 30%,
+    transparent 72%,
+    rgba(255, 255, 255, 0.14) 100%
+  );
+  mix-blend-mode: overlay;
+}
+
+.btn-gold {
+  appearance: none;
+  forced-color-adjust: none;
+  font: inherit;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--gold-soft);
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (prefers-color-scheme: light) {
+  .btn-gold { color: var(--gold); }
+}
+
+.btn-gold.glass {
+  background: rgba(242, 183, 5, 0.16);
+  border: 1px solid rgba(242, 183, 5, 0.7);
+  text-shadow: 0 0 14px rgba(242, 183, 5, 0.45);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(242, 183, 5, 0.18);
+}
+
+.btn-gold:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.btn-gold:active {
+  transform: translateY(0) scale(0.97);
+}
+
+body.compose {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 0;
+  width: 100%;
+  min-height: 100dvh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.topbar {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(100deg, var(--accent) 0%, var(--gold) 100%);
+  box-shadow: 0 6px 24px rgba(8, 6, 26, 0.3);
+  flex-shrink: 0;
+}
+
+.topbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 1rem;
+}
+
+.topbar-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.topbar-center {
+  flex: 1;
+  text-align: center;
+}
+
+.topbar-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--gold-soft);
+  white-space: nowrap;
+}
+
+.topbar-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.center-greeting {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--gold-soft);
+  text-shadow: 0 0 14px rgba(242, 183, 5, 0.5);
+  white-space: nowrap;
+}
+
+.board {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 2.5vh, 1.8rem);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.25rem 1.5rem 6.5rem;
+}
+
+.countdown--compact {
+  flex-shrink: 0;
+  width: auto;
+  max-width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+}
+
+.countdown--compact .countdown-label { margin: 0; font-size: 0.85rem; color: var(--text-dim); }
+.countdown--compact .countdown-unit { min-width: 0; display: inline-flex; flex-direction: row; align-items: baseline; gap: 0.15rem; }
+.countdown--compact .num { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.countdown--compact .unit-label { margin: 0; font-size: 0.75rem; color: var(--text-dim); }
+
+.toolbar {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 780px;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+}
+
+.search-bar svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  color: var(--text-dim);
+  display: block;
+}
+
+.search-bar input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+.search-bar input::placeholder { color: var(--text-dim); opacity: 0.75; }
+
+.seg { position: relative; display: flex; padding: 3px; border-radius: 999px; flex: none; isolation: isolate; }
+.seg-indicator {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  bottom: 3px;
+  width: 0;
+  border-radius: 999px;
+  background: rgba(242, 183, 5, 0.22);
+  box-shadow: 0 0 0 1px rgba(242, 183, 5, 0.35) inset;
+  transition: transform 0.32s cubic-bezier(.22,1,.36,1), width 0.32s cubic-bezier(.22,1,.36,1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.seg button { position: relative; z-index: 1; appearance: none; forced-color-adjust: none; border: 0; background: transparent; color: var(--text-dim); font: 600 0.8rem var(--font-body); padding: 0.5rem 0.85rem; border-radius: 999px; cursor: pointer; transition: color 0.25s ease; }
+.seg button[aria-pressed="true"] { color: var(--gold-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  .seg-indicator { transition: none; }
+}
+
+.explorer {
+  flex: 1 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1rem;
+  min-height: 420px;
+}
+
+.explorer-nav { display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; flex-shrink: 0; }
+.crumbs { align-self: center; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; font-size: 0.88rem; color: var(--text-dim); }
+.crumbs button { appearance: none; forced-color-adjust: none; background: none; border: 0; color: inherit; font: inherit; padding: 0.2rem 0.4rem; border-radius: 6px; cursor: pointer; transition: color 0.2s ease; }
+.crumbs button:hover { color: var(--gold-soft); }
+.crumbs [aria-current] { color: var(--text); font-weight: 600; cursor: default; }
+
+.back-btn {
+  appearance: none;
+  forced-color-adjust: none;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--text-dim);
+  cursor: pointer;
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.22s ease, transform 0.22s ease, color 0.2s ease;
+}
+.back-btn svg { width: 15px; height: 15px; }
+.back-btn:hover { color: var(--gold-soft); }
+.back-btn:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.back-btn[data-hidden="true"] { opacity: 0; transform: scale(0.7); pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .back-btn { transition: none; }
+}
+
+.stage { width: 100%; transition: opacity 0.35s ease, transform 0.35s ease; }
+.stage--flow { width: 100%; }
+
+.stage--orbit {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  height: 420px;
+  min-height: 380px;
+  flex-shrink: 0;
+  perspective: 1100px;
+  perspective-origin: 50% 45%;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  cursor: grab;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.stage--orbit:active {
+  cursor: grabbing;
+}
+
+.carousel-3d-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbit-ellipse-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotateX(74deg);
+  width: clamp(400px, 90vw, 850px);
+  height: clamp(400px, 90vw, 850px);
+  border: 1.5px dashed rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  pointer-events: none;
+  box-shadow: inset 0 0 35px rgba(139, 111, 232, 0.15);
+}
+
+.core-sun-3d {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.sun-globe {
+  width: clamp(90px, 15vw, 150px);
+  height: clamp(90px, 15vw, 150px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff7d1, var(--gold-soft) 40%, var(--gold) 100%);
+  box-shadow: 0 0 50px 16px rgba(242, 183, 5, 0.5), inset -6px -8px 15px rgba(0,0,0,0.25);
+  animation: pulseSun 4s ease-in-out infinite alternate;
+}
+
+.subject-core-globe {
+  width: clamp(100px, 18vw, 170px);
+  height: clamp(100px, 18vw, 170px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.75), var(--c1) 45%, var(--c2) 100%);
+  box-shadow: inset -8px -10px 20px rgba(0,0,0,0.4), 0 0 45px 5px var(--c1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem;
+}
+
+.core-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 2.4vw, 1.05rem);
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.85);
+  line-height: 1.15;
+  text-align: center;
+}
+
+@keyframes pulseSun {
+  0% { transform: scale(1); box-shadow: 0 0 45px 12px rgba(242, 183, 5, 0.45); }
+  100% { transform: scale(1.06); box-shadow: 0 0 65px 22px rgba(242, 183, 5, 0.65); }
+}
+
+.carousel-3d-ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.carousel-node {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  cursor: pointer;
+  transition: opacity 0.35s ease, filter 0.35s ease;
+}
+
+.carousel-node.is-dim {
+  opacity: 0.18 !important;
+  pointer-events: none;
+}
+
+.planet-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.planet-sphere {
+  width: clamp(48px, 9vw, 72px);
+  height: clamp(48px, 9vw, 72px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.7), var(--c1) 42%, var(--c2) 100%);
+  box-shadow: inset -6px -8px 14px rgba(0,0,0,0.4), 0 0 22px -2px var(--c1);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.planet-node:hover .planet-sphere,
+.planet-node:focus-visible .planet-sphere {
+  transform: scale(1.15);
+  box-shadow: inset -6px -8px 14px rgba(0,0,0,0.3), 0 0 32px 4px var(--c1), 0 0 0 3px var(--focus-ring);
+}
+
+.planet-label {
+  margin-top: 0.45rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(0.72rem, 2vw, 0.85rem);
+  color: var(--text);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.85);
+  white-space: nowrap;
+  pointer-events: none;
+  background: rgba(16, 13, 51, 0.68);
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.teacher-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+.teacher-avatar {
+  width: clamp(44px, 8vw, 64px);
+  height: clamp(44px, 8vw, 64px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.75), var(--c1) 42%, var(--c2) 100%);
+  box-shadow: inset -5px -7px 12px rgba(0,0,0,0.38), 0 0 20px -2px var(--c1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.9rem, 2vw, 1.15rem);
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.teacher-node:hover .teacher-avatar,
+.teacher-node:focus-visible .teacher-avatar {
+  transform: scale(1.15);
+  box-shadow: inset -5px -7px 12px rgba(0,0,0,0.3), 0 0 28px 4px var(--c1), 0 0 0 3px var(--focus-ring);
+}
+
+.teacher-label {
+  margin-top: 0.4rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(0.7rem, 1.8vw, 0.82rem);
+  color: var(--text);
+  text-shadow: 0 2px 6px rgba(0,0,0,0.85);
+  white-space: nowrap;
+  pointer-events: none;
+  background: rgba(16, 13, 51, 0.68);
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.stage {
+  will-change: opacity, transform, filter, height;
+  transform-origin: 50% 50%;
+}
+
+.transition-out {
+  opacity: 0;
+  transform: scale(0.94) translateY(10px);
+  filter: blur(4px);
+  pointer-events: none;
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s cubic-bezier(.4,0,.2,1),
+    filter 0.22s ease;
+}
+
+.transition-in {
+  animation: viewSwitchIn 0.45s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes viewSwitchIn {
+  from { opacity: 0; transform: scale(0.96) translateY(-8px); filter: blur(4px); }
+  60% { opacity: 1; transform: scale(1.01) translateY(1px); filter: blur(0); }
+  to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage, .transition-out { transition: none !important; animation: none !important; }
+}
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0.8rem; width: 100%; }
+.card { appearance: none; forced-color-adjust: none; text-align: left; font: inherit; color: var(--text); border-radius: 18px; padding: 1rem; cursor: pointer; display: flex; flex-direction: column; gap: 0.35rem; transition: transform 0.2s ease; }
+.card:hover { transform: translateY(-2px); }
+.card .dot { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.65), var(--c1) 45%, var(--c2)); }
+.card small { color: var(--text-dim); }
+
+.panel-title { margin: 0 0 0.8rem; font: 700 1.3rem/1.2 var(--font-display); }
+.letters { display: grid; gap: 0.8rem; }
+.letter { border-radius: 16px; padding: 1rem 1.1rem; background: var(--bg); color: var(--ink); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
+.letter p { margin: 0 0 0.6rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.letter footer { font-size: 0.8rem; opacity: 0.75; }
+.lock { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; text-align: center; padding: 1.6rem 1rem; border-radius: 20px; color: var(--text-dim); }
+.lock svg { width: 28px; height: 28px; color: var(--gold-soft); }
+.lock strong { color: var(--text); }
+.empty { color: var(--text-dim); text-align: center; }
+
+.letter-dialog { border: 0; padding: 0; background: transparent; color: var(--text); width: min(92vw, 560px); max-height: 92dvh; overflow: visible; }
+.letter-dialog::backdrop { background: rgba(8, 6, 26, 0.6); backdrop-filter: blur(6px); }
+.letter-form { border-radius: 24px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.6rem; max-height: 90dvh; overflow: auto; }
+.letter-form label { font-size: 0.8rem; color: var(--text-dim); }
+.letter-form select, .letter-form textarea, .letter-form input[type="text"] { width: 100%; forced-color-adjust: none; font: inherit; font-size: 0.95rem; color: var(--text); background: rgba(255,255,255,.08); border: 1px solid var(--glass-border); border-radius: 12px; padding: 0.65rem 0.8rem; }
+.letter-form textarea { min-height: 170px; resize: vertical; background: var(--paper, #fff1a8); color: var(--ink, #1d1a33); border-color: transparent; }
+.letter-form option { color: #201a45; background: #fff; }
+.letter-form input:disabled { opacity: 0.5; }
+.check { display: flex; align-items: center; gap: 0.5rem; color: var(--text) !important; font-size: 0.9rem !important; }
+.check input { accent-color: var(--gold); }
+.palette { position: relative; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+.palette input { position: absolute; opacity: 0; pointer-events: none; }
+.palette label { aspect-ratio: 1; border-radius: 8px; background: var(--sw); border: 2px solid transparent; cursor: pointer; }
+.palette input:checked + label { border-color: #fff; box-shadow: 0 0 0 2px var(--gold); }
+.palette input:focus-visible + label { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.form-status { margin: 0; min-height: 1.2em; font-size: 0.85rem; color: var(--gold-soft); }
+.actions { display: flex; gap: 0.6rem; }
+.actions .btn-gold { flex: 1; }
+.btn-ghost { appearance: none; forced-color-adjust: none; background: transparent; border: 1px solid var(--glass-border); color: var(--text-dim); border-radius: 12px; padding: 0.85rem 1.1rem; font: 600 0.95rem var(--font-body); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.btn-ghost:hover { background: rgba(255,255,255,0.25); }
+
+.create-btn {
+  position: fixed;
+  z-index: 100;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(340px, calc(100vw - 2rem));
+  margin: 0;
+  font-size: 1rem;
+  padding: 1rem 1.4rem;
+  flex: none;
+}
+.create-btn:hover { transform: translateX(-50%) translateY(-2px); }
+.create-btn:active { transform: translateX(-50%) scale(0.97); }
+
+.glass {
+  --mouse-x: 50%;
+  --mouse-y: 50%;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+  will-change: transform;
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  left: var(--mouse-x);
+  top: var(--mouse-y);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 225, 120, 0.35) 0%, rgba(255, 205, 90, 0.18) 30%, rgba(150, 110, 255, 0.08) 50%, transparent 75%);
+  filter: blur(36px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+.glass:hover::before, .glass:focus-within::before { opacity: 1; }
+.glass > span { display: inline-block; transform-style: preserve-3d; transition: transform 0.12s ease-out; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glass, .glass::before, .glass > span { transition: none !important; }
+}
+</style>
+</head>
+<body class="compose transition-in">
+
+  <div class="sky" aria-hidden="true">
+    <div class="orb o1"></div>
+    <div class="orb o2"></div>
+    <div class="glow"></div>
+    <span class="star s1"></span><span class="star s2"></span><span class="star s3"></span>
+    <span class="star s4"></span><span class="star s5"></span><span class="star s6"></span>
+    <span class="star s7"></span><span class="star s8"></span><span class="star s9"></span>
+    <span class="star s10"></span><span class="star s11"></span><span class="star s12"></span>
+    <span class="star s13"></span><span class="star s14"></span><span class="star s15"></span>
+    <span class="star s16"></span>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-container">
+      <div class="topbar-left">
+        <span class="badge glass">Start Creating Letters!</span>
+        <h1 class="topbar-title" id="teacherGreeting">Welcome!</h1>
+      </div>
+      <div class="topbar-center">
+        <span class="center-greeting"> Happy Teachers&rsquo; Day! </span>
+      </div>
+      <div class="topbar-right">
+        <a href="login.html" class="btn-ghost" id="logoutBtn">Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="board">
+
+    <section class="countdown countdown--compact glass" aria-live="polite">
+      <p class="countdown-label" id="countdownLabel">Message reveal in</p>
+      <span class="countdown-unit"><span class="num" id="days">00</span><span class="unit-label">d</span></span>
+      <span class="countdown-unit"><span class="num" id="hours">00</span><span class="unit-label">h</span></span>
+      <span class="countdown-unit"><span class="num" id="minutes">00</span><span class="unit-label">m</span></span>
+      <span class="countdown-unit"><span class="num" id="seconds">00</span><span class="unit-label">s</span></span>
+    </section>
+
+    <div class="toolbar">
+      <div class="search-bar glass">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="search" id="searchInput" placeholder="Search subjects, teachers, letters" aria-label="Search">
+      </div>
+      <div class="seg glass" role="group" aria-label="View">
+        <span class="seg-indicator" id="segIndicator" aria-hidden="true"></span>
+        <button type="button" data-view="orbit" aria-pressed="true">Orbit</button>
+        <button type="button" data-view="grid" aria-pressed="false">List</button>
+      </div>
+    </div>
+
+    <div class="explorer">
+      <div class="explorer-nav">
+        <button type="button" class="back-btn glass" id="backBtn" aria-label="Go back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <nav class="crumbs" id="crumbs" aria-label="Breadcrumb"></nav>
+      </div>
+      <div id="stage" class="stage" aria-live="polite"></div>
+    </div>
+
+    <button type="button" class="btn-gold glass create-btn" id="createLetterBtn" data-tilt-base="translateX(-50%)">Create a letter</button>
+
+  </main>
+
+  <dialog class="letter-dialog" id="letterDialog" aria-labelledby="dialogTitle">
+    <form class="letter-form glass" id="letterForm">
+      <h2 class="panel-title" id="dialogTitle">Submit your message</h2>
+
+      <label for="toSelect">To</label>
+      <select id="toSelect" name="to" required></select>
+
+      <label for="letterText">Your message</label>
+      <textarea id="letterText" name="text" maxlength="600" placeholder="Type your message here..." required></textarea>
+
+      <label id="paletteLabel">Background color</label>
+      <div class="palette" id="palette" role="radiogroup" aria-labelledby="paletteLabel"></div>
+
+      <label for="fromInput">From</label>
+      <input type="text" id="fromInput" name="from" maxlength="60" placeholder="Your name">
+      <label class="check"><input type="checkbox" name="anon"> Send anonymously</label>
+      <label class="check"><input type="checkbox" name="pub" checked> Show on the public board</label>
+
+      <p class="form-status" id="formStatus" role="status"></p>
+      <div class="actions">
+        <button type="submit" class="btn-gold glass">Submit</button>
+        <button type="button" class="btn-ghost" id="cancelLetter">Cancel</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+/**
+ * Teachers' Day Portal - Router & Auth Session Guard
+ */
+(function () {
+  'use strict';
+
+  if (window.__SACS_ROUTER_INIT) return;
+  window.__SACS_ROUTER_INIT = true;
+
+  const AUTH_KEY = 'sacs_portal_user';
+
+  function getCurrentUser() {
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_KEY));
+    } catch {
+      return null;
+    }
+  }
+
+  function setCurrentUser(userData) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(AUTH_KEY);
+  }
+
+  function handleLogin(email) {
+    const cleanEmail = email.trim().toLowerCase();
+    const isTeacher = cleanEmail.includes('teacher') || cleanEmail.includes('santos') || !cleanEmail.startsWith('100');
+    
+    const userData = {
+      email: cleanEmail,
+      role: isTeacher ? 'teacher' : 'student',
+      loginTime: Date.now()
+    };
+    
+    setCurrentUser(userData);
+    window.location.href = isTeacher ? 'teacher_portal.html' : 'compose.html';
+  }
+
+  function attachInterceptors() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        clearSession();
+        window.location.href = 'index.html';
+      });
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = loginForm.querySelector('input[name="email"]');
+        if (emailInput && emailInput.value) {
+          handleLogin(emailInput.value);
+        }
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    attachInterceptors();
+    
+    // Fallback: Ensure active student session when testing compose directly
+    let user = getCurrentUser();
+    if (!user) {
+      user = { email: 'student@sacs.edu.ph', role: 'student', loginTime: Date.now() };
+      setCurrentUser(user);
+    }
+  });
+
+})();
+
+/* ===========================================================
+   Compose Page Core Engine
+   =========================================================== */
+
+const REVEAL_TIME = new Date("2026-10-02T16:00:00+08:00").getTime();
+
+// Initialize Supabase Client
+const SUPABASE_URL = "https://qlmyhubnfjjhqrnugbvl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFsbXlodWJuZmpqaHFybnVnYnZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2NDg0NzksImV4cCI6MjEwNjIyNDQ3OX0.HaOL_CKuCk8ZoUNTh308seJs3RR4ASIXH_9zCANFFNw";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const els = {
+  days: document.getElementById("days"),
+  hours: document.getElementById("hours"),
+  minutes: document.getElementById("minutes"),
+  seconds: document.getElementById("seconds"),
+  label: document.getElementById("countdownLabel"),
+  section: document.querySelector(".countdown"),
+};
+
+let timerId;
+
+function pad(n) { return String(n).padStart(2, "0"); }
+function isRevealed() { return Date.now() >= REVEAL_TIME; }
+
+function showRevealed() {
+  if (timerId) clearInterval(timerId);
+  if (els.days) els.days.textContent = "00";
+  if (els.hours) els.hours.textContent = "00";
+  if (els.minutes) els.minutes.textContent = "00";
+  if (els.seconds) els.seconds.textContent = "00";
+  if (els.section) els.section.classList.add("countdown--open");
+  if (els.label) els.label.textContent = "Public messages are visible and teachers can log in";
+}
+
+function tick() {
+  const remaining = REVEAL_TIME - Date.now();
+  if (remaining <= 0) { showRevealed(); return; }
+  const days = Math.floor(remaining / 86400000);
+  const hours = Math.floor((remaining % 86400000) / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+
+  if (els.days) els.days.textContent = pad(days);
+  if (els.hours) els.hours.textContent = pad(hours);
+  if (els.minutes) els.minutes.textContent = pad(minutes);
+  if (els.seconds) els.seconds.textContent = pad(seconds);
+}
+
+tick();
+timerId = setInterval(tick, 1000);
+
+const FORCE_UNLOCK = false;
+
+const SUBJECTS = [
+  { id: "math", name: "Math", c1: "#7fd4ff", c2: "#2a5bd7", teachers: [
+    { id: "t3", name: "Jean G. Acosta", short: "Acosta" },
+    { id: "t9", name: "Donald V. Baluran", short: "Baluran" },
+    { id: "t11", name: "Merly C. Beldeniza", short: "Beldeniza" },
+    { id: "t13", name: "Erlene Mareia Z. Blanco", short: "Blanco" },
+    { id: "t24", name: "Marla O. Catadman", short: "Catadman" },
+    { id: "t37", name: "Annabelle B. Gualiza", short: "Gualiza" },
+    { id: "t45", name: "Christian Fine C. Navarro", short: "Navarro" },
+    { id: "t64", name: "Wendyl Cris L. Tuñacao", short: "Tuñacao" } ] },
+
+  { id: "science", name: "Science", c1: "#9af0c0", c2: "#1f8f6a", teachers: [
+    { id: "t1", name: "Jerilee P. Abadiez", short: "Abadiez" },
+    { id: "t2", name: "Albena A. Abella", short: "Abella" },
+    { id: "t10", name: "Marjorie T. Bantilan", short: "Bantilan" },
+    { id: "t21", name: "Jon Michael Vincent C. Casaba", short: "Casaba" },
+    { id: "t25", name: "Arpe O. Catagbo", short: "Catagbo" },
+    { id: "t29", name: "Jenaiza R. Deresas", short: "Deresas" },
+    { id: "t32", name: "Claire A. Flores", short: "Flores" },
+    { id: "t39", name: "Gemaeka V. Juban", short: "Juban" } ] },
+
+  { id: "english", name: "English", c1: "#ffb3d1", c2: "#c2377a", teachers: [
+    { id: "t4", name: "Mari Auralyn Y. Aguihon", short: "Aguihon" },
+    { id: "t14", name: "Ryanissa G. Borbajo", short: "Borbajo" },
+    { id: "t17", name: "Cherra Mae C. Caballes", short: "Caballes" },
+    { id: "t19", name: "Paul Bert N. Cadampog", short: "Cadampog" },
+    { id: "t26", name: "Carylle Jane T. Cuizon", short: "Cuizon" },
+    { id: "t35", name: "Christian Francis P. Gilig", short: "Gilig" },
+    { id: "t38", name: "Lyra Jazel A. Hayag", short: "Hayag" },
+    { id: "t48", name: "Alona R. Pino", short: "Pino" },
+    { id: "t52", name: "Maribel D. Reubal", short: "Reubal" } ] },
+
+  { id: "filipino", name: "Filipino", c1: "#ffd88a", c2: "#d9822b", teachers: [
+    { id: "t7", name: "Sheena Rose D. Astorga", short: "Astorga" },
+    { id: "t15", name: "Cathyrine D. Buhisan", short: "Buhisan" },
+    { id: "t18", name: "Joshua Z. Cabisas", short: "Cabisas" },
+    { id: "t51", name: "Melyn Marie M. Regado", short: "Regado" },
+    { id: "t59", name: "Honey Lyn U. Solis", short: "Solis" } ] },
+
+  { id: "mapeh", name: "MAPEH", c1: "#d3b8ff", c2: "#6b3fd1", teachers: [
+    { id: "t12", name: "Anthony Mhil D. Bermoy", short: "Bermoy" },
+    { id: "t16", name: "Gabriel S Bustos", short: "Bustos" },
+    { id: "t28", name: "Andrea Shara P. Deferia", short: "Deferia" },
+    { id: "t44", name: "Maria Kristine C. Menina", short: "Menina" },
+    { id: "t58", name: "Nelmar L. Sintos", short: "Sintos" },
+    { id: "t60", name: "Edgardo Jr.P. Soqueño", short: "Soqueño" } ] },
+
+  { id: "social", name: "Social Studies", c1: "#ffa89a", c2: "#c0392b", teachers: [
+    { id: "t6", name: "Mary Grace L. Amodia", short: "Amodia" },
+    { id: "t8", name: "Rhyca Jianne A. Avila", short: "Avila" },
+    { id: "t31", name: "Alms Millicent A. Flores", short: "Flores" },
+    { id: "t33", name: "John Carlo C. Gamao", short: "Gamao" },
+    { id: "t47", name: "Jean Mariel G. Orboc", short: "Orboc" },
+    { id: "t56", name: "Francis Justine Q. Silawan", short: "Silawan" },
+    { id: "t61", name: "Roque John P. Taladro", short: "Taladro" } ] },
+
+  { id: "tle", name: "TLE", c1: "#d4f58a", c2: "#6a9a1f", teachers: [
+    { id: "t5", name: "Luel S. Alesna", short: "Alesna" },
+    { id: "t30", name: "Alfredo Q. Devocion", short: "Devocion" },
+    { id: "t42", name: "Christine E. Mamotos", short: "Mamotos" },
+    { id: "t46", name: "Maria Dolores V. Noval", short: "Noval" },
+    { id: "t50", name: "Arden Jose Refulle", short: "Refulle" },
+    { id: "t55", name: "Kenneth L. Salas", short: "Salas" },
+    { id: "t57", name: "Leah Y. Singuit", short: "Singuit" } ] },
+
+  { id: "cle", name: "CLE", c1: "#e6e2d3", c2: "#8c7f5c", teachers: [
+    { id: "t20", name: "Janet N. Campo", short: "Campo" },
+    { id: "t23", name: "Nilo E. Castro", short: "Castro" },
+    { id: "t36", name: "Jocyl S. Guanzon", short: "Guanzon" },
+    { id: "t54", name: "Renante C. Rocal", short: "Rocal" } ] },
+
+  { id: "values", name: "Values Education", c1: "#ffe08a", c2: "#b8860b", teachers: [
+    { id: "t27", name: "John Carlo Dacullo", short: "Dacullo" },
+    { id: "t63", name: "Charisse Jade A. Tangub", short: "Tangub" } ] },
+
+  { id: "offices", name: "Non-Teaching Personnel", c1: "#b8c4d6", c2: "#4a5a78", teachers: [
+    { id: "offices", name: "Non-Teaching Personnel", short: "Staff" } ] },
+];
+
+let LETTERS = {};
+
+async function fetchLetters() {
+  try {
+    const { data, error } = await supabaseClient
+      .from('letters')
+      .select('*')
+      .eq('is_public', true);
+    
+    if (error) throw error;
+
+    LETTERS = {};
+    if (data) {
+      data.forEach(row => {
+        const teacherId = row.to_teacher || row.to;
+        if (!teacherId) return;
+        if (!LETTERS[teacherId]) LETTERS[teacherId] = [];
+        LETTERS[teacherId].push({
+          from: row.sender || row.from || "Anonymous",
+          text: row.text,
+          bg: row.bg || "#fff1a8"
+        });
+      });
+    }
+  } catch (err) {
+    console.error("Error fetching letters from Supabase:", err);
+  }
+  render();
+}
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const safeColor = (c) => (/^#[0-9a-f]{6}$/i.test(c) ? c : "#ffffff");
+const inkFor = (h) => { const n = parseInt(h.slice(1), 16); return ((n >> 16) * 299 + ((n >> 8) & 255) * 587 + (n & 255) * 114) / 1000 > 150 ? "#1d1a33" : "#ffffff"; };
+const unlocked = () => FORCE_UNLOCK || isRevealed();
+
+const stage = $("#stage"), crumbs = $("#crumbs"), search = $("#searchInput");
+const state = { view: "orbit", subject: null, teacher: null };
+
+const key = (it) => (it.name + " " + (it.teachers || []).map((t) => t.name).join(" ")).toLowerCase();
+const items = () => (state.subject ? state.subject.teachers : SUBJECTS);
+
+function selectSubject(subj) {
+  if (subj.teachers.length === 1) transitionToState(subj, subj.teachers[0]);
+  else transitionToState(subj, null);
+}
+
+/* ===========================================================
+   Interactive 3D Carousel Physics & Render Engine
+   =========================================================== */
+
+let currentAngle = 0;
+let velocity = 0;
+let isDragging = false;
+let startX = 0;
+let lastX = 0;
+let lastTime = 0;
+let dragDistance = 0;
+let lastUserInteraction = Date.now();
+let rafId = null;
+
+function render() {
+  renderCrumbs();
+  if (state.teacher) {
+    stopCarouselLoop();
+    renderLetters();
+  } else if (state.view === "orbit") {
+    render3DOrbit(items(), !!state.subject);
+  } else {
+    stopCarouselLoop();
+    renderGrid(items(), !!state.subject);
+  }
+  applySearch();
+}
+
+function renderCrumbs() {
+  const parts = [["All subjects", () => { transitionToState(null, null); }]];
+  if (state.subject) parts.push([state.subject.name, () => { transitionToState(state.subject, null); }]);
+  if (state.teacher) parts.push([state.teacher.name, null]);
+  crumbs._parts = parts;
+  crumbs.innerHTML = parts.map(([n], i) => `<button type="button" data-c="${i}" ${i === parts.length - 1 ? 'aria-current="page"' : ""}>${esc(n)}</button>`).join('<span aria-hidden="true">›</span>');
+
+  const backBtn = $("#backBtn");
+  if (backBtn) {
+    backBtn.dataset.hidden = state.subject || state.teacher ? "false" : "true";
+  }
+}
+
+function goBack() {
+  if (state.teacher) transitionToState(state.subject, null);
+  else if (state.subject) transitionToState(null, null);
+}
+
+const backBtnEl = $("#backBtn");
+if (backBtnEl) backBtnEl.addEventListener("click", goBack);
+
+function transitionToState(subj, teach) {
+  stage.classList.add("transition-out");
+  setTimeout(() => {
+    state.subject = subj;
+    state.teacher = teach;
+    currentAngle = 0;
+    velocity = 0;
+    render();
+    stage.classList.remove("transition-out");
+    stage.classList.add("transition-in");
+    setTimeout(() => stage.classList.remove("transition-in"), 400);
+  }, 220);
+}
+
+function render3DOrbit(list, isMoon) {
+  stage.className = "stage stage--orbit";
+  
+  const coreHTML = isMoon
+    ? `<div class="core-sun-3d">
+         <div class="subject-core-globe" style="--c1:${state.subject.c1};--c2:${state.subject.c2}">
+           <span class="core-title">${esc(state.subject.name)}</span>
+         </div>
+       </div>`
+    : `<div class="core-sun-3d"><div class="sun-globe" aria-hidden="true"></div></div>`;
+
+  stage.innerHTML = `
+    <div class="carousel-3d-stage" id="carouselStage">
+      <div class="orbit-ellipse-bg"></div>
+      ${coreHTML}
+      <div class="carousel-3d-ring" id="carouselRing"></div>
+    </div>
+  `;
+
+  const ring = $("#carouselRing");
+  ring.innerHTML = list.map((it, i) => {
+    const c = isMoon ? state.subject : it;
+    const content = isMoon
+      ? `<button type="button" class="teacher-node" title="${esc(it.name)}">
+           <div class="teacher-avatar" style="--c1:${c.c1};--c2:${c.c2}">${esc(it.short ? it.short.charAt(0) : it.name.charAt(0))}</div>
+           <span class="teacher-label">${esc(it.short || it.name)}</span>
+         </button>`
+      : `<button type="button" class="planet-node" title="${esc(it.name)}">
+           <div class="planet-sphere" style="--c1:${c.c1};--c2:${c.c2}"></div>
+           <span class="planet-label">${esc(it.name)}</span>
+         </button>`;
+         
+    return `<div class="carousel-node" data-i="${i}" data-name="${esc(key(it))}">${content}</div>`;
+  }).join("");
+
+  requestAnimationFrame(() => {
+    update3DPositions(list.length);
+  });
+  startCarouselLoop(list.length);
+}
+
+function update3DPositions(count) {
+  const ring = $("#carouselRing");
+  if (!ring) return;
+
+  const nodes = ring.querySelectorAll(".carousel-node");
+  if (!nodes.length) return;
+
+  const stageWidth = stage.clientWidth || 480;
+  const radius = Math.min(Math.max(stageWidth * 0.42, 200), 420);
+  const tiltRad = (12 * Math.PI) / 180;
+
+  nodes.forEach((node, i) => {
+    const baseAngleDeg = (360 / count) * i;
+    const totalAngleDeg = baseAngleDeg + currentAngle;
+    const rad = (totalAngleDeg * Math.PI) / 180;
+
+    const x = radius * Math.sin(rad);
+    const z = radius * Math.cos(rad);
+    const y = z * Math.sin(tiltRad);
+
+    const normZ = (z + radius) / (2 * radius);
+    const scale = 0.72 + normZ * 0.38;
+    const opacity = 0.42 + normZ * 0.58;
+    const zIndex = Math.round(z + radius + 100);
+
+    node.style.transform = `translate(-50%, -50%) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) scale(${scale.toFixed(3)})`;
+    node.style.opacity = opacity.toFixed(3);
+    node.style.zIndex = zIndex;
+  });
+}
+
+function startCarouselLoop(count) {
+  stopCarouselLoop();
+
+  function loop() {
+    if (!isDragging) {
+      velocity *= 0.92;
+      currentAngle += velocity;
+
+      if (Date.now() - lastUserInteraction > 1200 && Math.abs(velocity) < 0.03) {
+        currentAngle += 0.14;
+      }
+    }
+
+    update3DPositions(count);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  rafId = requestAnimationFrame(loop);
+}
+
+function stopCarouselLoop() {
+  if (rafId) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+}
+
+function attachCarouselControls() {
+  if (stage._controlsAttached) return;
+  stage._controlsAttached = true;
+
+  stage.addEventListener("pointerdown", (e) => {
+    if (!e.target.closest(".carousel-3d-stage")) return;
+    isDragging = true;
+    startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    lastX = startX;
+    dragDistance = 0;
+    lastTime = performance.now();
+    velocity = 0;
+    lastUserInteraction = Date.now();
+  });
+
+  window.addEventListener("pointermove", (e) => {
+    if (!isDragging) return;
+    const currentX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+    const dx = currentX - lastX;
+    const now = performance.now();
+    const dt = Math.max(1, now - lastTime);
+
+    dragDistance += Math.abs(currentX - lastX);
+    velocity = (dx / dt) * 12;
+    currentAngle += dx * 0.45;
+
+    lastX = currentX;
+    lastTime = now;
+    lastUserInteraction = Date.now();
+  });
+
+  window.addEventListener("pointerup", () => {
+    isDragging = false;
+    lastUserInteraction = Date.now();
+  });
+  window.addEventListener("pointercancel", () => {
+    isDragging = false;
+    lastUserInteraction = Date.now();
+  });
+}
+attachCarouselControls();
+
+stage.addEventListener("click", (e) => {
+  const inOrbit = !!e.target.closest(".carousel-3d-stage");
+  if (inOrbit && dragDistance > 8) return;
+  const node = e.target.closest("[data-i]");
+  if (!node) return;
+  const idx = parseInt(node.dataset.i, 10);
+  const selectedItem = items()[idx];
+  if (!selectedItem) return;
+  if (state.subject) transitionToState(state.subject, selectedItem);
+  else selectSubject(selectedItem);
+});
+
+function renderGrid(list, moon) {
+  stage.className = "stage stage--flow";
+  stage.innerHTML = `<div class="grid">${list.map((it, i) => {
+    const c = moon ? state.subject : it;
+    const sub = moon ? (unlocked() ? `${(LETTERS[it.id] || []).length} letters` : "Sealed until reveal") : `${it.teachers.length} teachers`;
+    return `<button type="button" class="card glass" data-i="${i}" data-name="${esc(key(it))}" style="--c1:${c.c1};--c2:${c.c2}"><span class="dot"></span><strong>${esc(it.name)}</strong><small>${sub}</small></button>`;
+  }).join("")}</div>`;
+}
+
+function renderLetters() {
+  stage.className = "stage stage--flow";
+  const t = state.teacher;
+  let body;
+  if (!unlocked()) {
+    body = '<div class="lock glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><strong>Letters are still sealed</strong><span>They unlock when the countdown ends.</span></div>';
+  } else {
+    const ls = LETTERS[t.id] || [];
+    body = ls.length
+      ? `<div class="letters">${ls.map((l) => { const bg = safeColor(l.bg); return `<article class="letter" data-name="${esc((l.text + " " + l.from).toLowerCase())}" style="--bg:${bg};--ink:${inkFor(bg)}"><p>${esc(l.text)}</p><footer>—${esc(l.from)}</footer></article>`; }).join("")}</div>`
+      : `<p class="empty">No public letters for ${esc(t.name)} yet.</p>`;
+  }
+  stage.innerHTML = `<h2 class="panel-title">${esc(t.name)}</h2>${body}`;
+}
+
+function applySearch() {
+  const q = search.value.trim().toLowerCase();
+  stage.querySelectorAll("[data-name]").forEach((el) => el.classList.toggle("is-dim", !!q && !el.dataset.name.includes(q)));
+}
+
+crumbs.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-c]");
+  if (b && !b.hasAttribute("aria-current")) crumbs._parts[b.dataset.c][1]();
+});
+
+function updateSegIndicator(activeBtn) {
+  const seg = activeBtn.closest(".seg");
+  const indicator = seg.querySelector(".seg-indicator");
+  if (!indicator) return;
+  const segRect = seg.getBoundingClientRect();
+  const btnRect = activeBtn.getBoundingClientRect();
+  const offset = btnRect.left - segRect.left - 3;
+  indicator.style.width = `${btnRect.width}px`;
+  indicator.style.transform = `translateX(${offset}px)`;
+}
+
+let viewSwitching = false;
+
+function switchView(nextView, button) {
+  if (nextView === state.view || viewSwitching) return;
+
+  viewSwitching = true;
+
+  const oldHeight = stage.getBoundingClientRect().height;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  document.querySelectorAll("[data-view]").forEach((x) => {
+    x.setAttribute("aria-pressed", x === button);
+  });
+  updateSegIndicator(button);
+
+  if (reduceMotion) {
+    state.view = nextView;
+    render();
+    viewSwitching = false;
+    return;
+  }
+
+  stage.style.height = `${oldHeight}px`;
+  stage.classList.add("transition-out");
+
+  setTimeout(() => {
+    state.view = nextView;
+    render();
+
+    const newHeight = stage.scrollHeight || stage.getBoundingClientRect().height;
+    stage.style.height = `${oldHeight}px`;
+
+    requestAnimationFrame(() => {
+      stage.style.transition = "height 0.45s cubic-bezier(.22,1,.36,1)";
+      stage.style.height = `${newHeight}px`;
+      stage.classList.remove("transition-out");
+      stage.classList.add("transition-in");
+
+      setTimeout(() => {
+        stage.style.height = "";
+        stage.style.transition = "";
+        stage.classList.remove("transition-in");
+        viewSwitching = false;
+      }, 460);
+    });
+  }, 220);
+}
+
+document.querySelectorAll("[data-view]").forEach((b) => b.addEventListener("click", () => {
+  switchView(b.dataset.view, b);
+}));
+
+window.addEventListener("resize", () => {
+  const active = document.querySelector('[data-view][aria-pressed="true"]');
+  if (active) updateSegIndicator(active);
+});
+
+requestAnimationFrame(() => {
+  const active = document.querySelector('[data-view][aria-pressed="true"]');
+  if (active) updateSegIndicator(active);
+});
+
+search.addEventListener("input", applySearch);
+
+const PALETTE = ["#ffffff", "#f1f0f7", "#c9c6d6", "#7d7a8c", "#2b2740", "#000000", "#ffd6e0", "#ffc8a8",
+  "#fff1a8", "#d8f5a2", "#b8f0d8", "#b5e8ff", "#c9d6ff", "#e2c9ff", "#ff5c8a", "#ff7a45",
+  "#f2b705", "#7ed957", "#2ec4b6", "#3ea6ff", "#5b6cff", "#8b6fe8", "#c04df0", "#8a1c3a"];
+const DEFAULT_BG = "#fff1a8";
+const dlg = $("#letterDialog"), form = $("#letterForm"), sel = $("#toSelect"), paper = $("#letterText"), status = $("#formStatus");
+
+sel.innerHTML = SUBJECTS.map((s) => `<optgroup label="${esc(s.name)}">${s.teachers.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("")}</optgroup>`).join("");
+$("#palette").innerHTML = PALETTE.map((c, i) => `<input type="radio" name="bg" id="sw${i}" value="${c}" ${c === DEFAULT_BG ? "checked" : ""}><label for="sw${i}" style="--sw:${c}" title="${c}"></label>`).join("");
+
+function paint() {
+  const c = form.bg.value;
+  paper.style.setProperty("--paper", c);
+  paper.style.setProperty("--ink", inkFor(c));
+}
+$("#palette").addEventListener("change", paint);
+$("#createLetterBtn").addEventListener("click", () => {
+  if (state.teacher) sel.value = state.teacher.id;
+  status.textContent = "";
+  paint();
+  dlg.showModal();
+});
+$("#cancelLetter").addEventListener("click", () => dlg.close());
+form.anon.addEventListener("change", () => { form.from.disabled = form.anon.checked; });
+
+// Supabase Form Submission Integration
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const recipient = sel.value;
+  const messageText = paper.value.trim();
+  const senderName = form.anon.checked ? "Anonymous" : (form.from.value.trim() || "Anonymous");
+  const isPublic = form.pub.checked;
+  const bgColor = form.bg.value;
+
+  if (!messageText) { 
+    status.textContent = "Write something first."; 
+    return; 
+  }
+
+  status.textContent = "Sending...";
+
+  try {
+    const { error } = await supabaseClient
+      .from('letters')
+      .insert([
+        {
+          to_teacher: recipient,
+          text: messageText,
+          sender: senderName,
+          is_public: isPublic,
+          bg: bgColor
+        }
+      ]);
+
+    if (error) throw error;
+
+    status.textContent = "Letter sent successfully!";
+    form.reset();
+    form.from.disabled = false;
+    paint();
+    await fetchLetters();
+    setTimeout(() => dlg.close(), 900);
+  } catch (err) {
+    console.error("Error submitting letter to Supabase:", err);
+    status.textContent = "Error sending letter. Please try again.";
+  }
+});
+
+(function () {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let active = null;
+
+  function apply(el, x, y, rect) {
+    const maxTilt = parseFloat(el.dataset.tilt) || 2.5;
+    const perspective = parseFloat(el.dataset.tiltPerspective) || 700;
+    const base = el.dataset.tiltBase ? el.dataset.tiltBase + " " : "";
+    const cx = rect.width / 2, cy = rect.height / 2;
+    const rotateY = ((x - cx) / cx) * maxTilt;
+    const rotateX = ((cy - y) / cy) * maxTilt;
+    el.style.transform = `${base}perspective(${perspective}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    el.style.setProperty("--mouse-x", `${x}px`);
+    el.style.setProperty("--mouse-y", `${y}px`);
+    if (el.tagName === "BUTTON") {
+      const span = el.querySelector(":scope > span");
+      if (span) span.style.transform = `perspective(500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+    }
+  }
+  function reset(el) {
+    const perspective = parseFloat(el.dataset.tiltPerspective) || 700;
+    const base = el.dataset.tiltBase ? el.dataset.tiltBase + " " : "";
+    el.style.transform = `${base}perspective(${perspective}px) rotateX(0deg) rotateY(0deg)`;
+    el.style.setProperty("--mouse-x", "50%");
+    el.style.setProperty("--mouse-y", "50%");
+    if (el.tagName === "BUTTON") {
+      const span = el.querySelector(":scope > span");
+      if (span) span.style.transform = "perspective(500px) rotateX(0deg) rotateY(0deg)";
+    }
+  }
+  document.addEventListener("mousemove", (event) => {
+    const el = event.target.closest(".glass");
+    if (el !== active && active) reset(active);
+    active = el;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    apply(el, event.clientX - rect.left, event.clientY - rect.top, rect);
+  });
+  document.addEventListener("mouseleave", () => { if (active) reset(active); active = null; }, true);
+})();
+
+// Initial UI Render & Fetch
+render();
+fetchLetters();
+  </script>
+</body>
+</html>

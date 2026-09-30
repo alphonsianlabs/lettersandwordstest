@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teachers&rsquo; Day Portal — St. Alphonsus Catholic School</title>
+<meta name="description" content="Log in to the Teachers' Day Portal — a place for students of St. Alphonsus Catholic School to send letters and drawings to their teachers.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-1: #100d33;
+  --bg-2: #2c2166;
+  --bg-3: #4b3f91;
+  --accent: #8b6fe8;
+  --gold: #f2b705;
+  --gold-soft: #ffd85c;
+  --text: #f5f3ff;
+  --text-dim: #c6bfe8;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(8, 6, 26, 0.45);
+  --star-opacity: 0.85;
+  --focus-ring: #ffd85c;
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-1: #eef0fb;
+    --bg-2: #dcdaf6;
+    --bg-3: #c7c2ef;
+    --accent: #6c5ce7;
+    --gold: #b8790a;
+    --gold-soft: #e0a52e;
+    --text: #201a45;
+    --text-dim: #55507a;
+    --glass-bg: rgba(255, 255, 255, 0.55);
+    --glass-border: rgba(255, 255, 255, 0.8);
+    --glass-shadow: rgba(90, 80, 150, 0.18);
+    --star-opacity: 0.35;
+    --focus-ring: #6c5ce7;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: linear-gradient(160deg, var(--bg-1) 0%, var(--bg-2) 55%, var(--bg-3) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  padding-top: max(env(safe-area-inset-top, 0px), clamp(1.25rem, 4vw, 3rem));
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), clamp(1.25rem, 4vw, 3rem));
+  overflow-x: hidden;
+  transition: background 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
+}
+body.transition-out {
+  opacity: 0;
+  transform: scale(0.98);
+}
+body.transition-in {
+  animation: fadeScaleIn 0.4s ease forwards;
+}
+
+@keyframes fadeScaleIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow {
+  position: absolute;
+  top: 8%;
+  right: 10%;
+  width: min(38vw, 420px);
+  height: min(38vw, 420px);
+  background: radial-gradient(circle, rgba(255, 216, 92, 0.35) 0%, rgba(255, 216, 92, 0) 70%);
+  filter: blur(4px);
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  filter: blur(2px);
+  opacity: 0.55;
+}
+
+.o1 {
+  width: min(60vw, 340px);
+  height: min(60vw, 340px);
+  top: -12%;
+  left: -14%;
+  background:
+    radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.22), transparent 55%),
+    radial-gradient(circle, rgba(242, 183, 5, 0.16) 0%, rgba(242, 183, 5, 0.02) 70%);
+}
+
+.o2 {
+  width: min(70vw, 400px);
+  height: min(70vw, 400px);
+  bottom: -18%;
+  right: -16%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.18), transparent 55%),
+    radial-gradient(circle, rgba(139, 111, 232, 0.22) 0%, rgba(139, 111, 232, 0.02) 70%);
+}
+
+@media (prefers-color-scheme: light) {
+  .orb { opacity: 0.4; }
+}
+
+.star {
+  position: absolute;
+  background: linear-gradient(135deg, #fff, var(--gold-soft));
+  opacity: var(--star-opacity);
+  clip-path: polygon(50% 0%, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0% 50%, 39% 39%);
+}
+
+.s1  { width: 34px; height: 34px; top: 12%; right: 14%; }
+.s2  { width: 14px; height: 14px; top: 22%; right: 26%; }
+.s3  { width: 10px; height: 10px; top: 8%;  right: 30%; }
+.s4  { width: 18px; height: 18px; top: 30%; right: 6%;  }
+.s5  { width: 12px; height: 12px; top: 70%; left: 8%;   }
+.s6  { width: 8px;  height: 8px;  top: 82%; left: 18%;  }
+.s7  { width: 16px; height: 16px; top: 60%; left: 4%;   }
+.s8  { width: 10px; height: 10px; top: 5%;  left: 46%;  }
+.s9  { width: 7px;  height: 7px;  top: 16%; left: 58%;  }
+.s10 { width: 13px; height: 13px; top: 40%; left: 12%;  }
+.s11 { width: 9px;  height: 9px;  top: 48%; right: 8%;  }
+.s12 { width: 15px; height: 15px; top: 88%; right: 22%; }
+.s13 { width: 6px;  height: 6px;  top: 93%; left: 44%;  }
+.s14 { width: 11px; height: 11px; top: 3%;  left: 20%;  }
+.s15 { width: 8px;  height: 8px;  top: 55%; left: 50%;  }
+.s16 { width: 12px; height: 12px; top: 75%; left: 60%;  }
+
+@media (prefers-reduced-motion: no-preference) {
+  .star {
+    animation: twinkle 3.4s ease-in-out infinite;
+  }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: calc(var(--star-opacity) * 0.5); transform: scale(0.9); }
+  50%      { opacity: var(--star-opacity); transform: scale(1.05); }
+}
+
+.portal {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.9rem;
+}
+
+.badge {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--gold-soft);
+  padding: 0.4rem 1.1rem;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+}
+
+.badge.glass {
+  background: rgba(242, 183, 5, 0.16);
+  border-color: rgba(242, 183, 5, 0.7);
+  text-shadow: 0 0 14px rgba(242, 183, 5, 0.45);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  margin: 0.2rem 0 0;
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+  color: var(--text-dim);
+  margin: 0 0 0.4rem;
+  max-width: 34ch;
+}
+
+.glass {
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow:
+    inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.5),
+    inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.5),
+    inset 8px -8px 20px -14px rgba(255, 255, 255, 0.4),
+    inset -8px 8px 20px -14px rgba(255, 255, 255, 0.4),
+    inset 0 0 24px rgba(0, 0, 0, 0.18),
+    0 18px 40px var(--glass-shadow);
+}
+
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.28) 0%,
+    transparent 30%,
+    transparent 72%,
+    rgba(255, 255, 255, 0.14) 100%
+  );
+  mix-blend-mode: overlay;
+}
+
+.countdown {
+  width: 100%;
+  border-radius: 20px;
+  padding: 1.1rem 1rem;
+}
+
+.countdown-label {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.countdown--open .countdown-label {
+  color: var(--gold-soft);
+  font-weight: 600;
+}
+
+.countdown-grid {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 3.2rem;
+}
+
+.num {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-variant-numeric: tabular-nums;
+}
+
+.unit-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 0.15rem;
+}
+
+.countdown-sep {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 4vw, 1.7rem);
+  color: var(--text-dim);
+  transform: translateY(-2px);
+}
+
+.login-card {
+  width: 100%;
+  border-radius: 20px;
+  padding: 1.4rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  text-align: left;
+}
+
+.login-card label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.login-card input {
+  width: 100%;
+  forced-color-adjust: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.login-card input:focus-visible {
+  border-color: var(--focus-ring);
+  box-shadow: 0 0 0 3px rgba(255, 216, 92, 0.25);
+}
+
+.btn-gold {
+  appearance: none;
+  font: inherit;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--gold-soft);
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-gold.glass {
+  background: rgba(242, 183, 5, 0.16);
+  border: 1px solid rgba(242, 183, 5, 0.7);
+  text-shadow: 0 0 14px rgba(242, 183, 5, 0.45);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(242, 183, 5, 0.18);
+}
+
+.form-hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+</style>
+</head>
+<body class="transition-in">
+
+  <div class="sky" aria-hidden="true">
+    <div class="orb o1"></div>  
+    <div class="orb o2"></div>
+    <div class="glow"></div>
+    <span class="star s1"></span>
+    <span class="star s2"></span>
+    <span class="star s3"></span>
+    <span class="star s4"></span>
+    <span class="star s5"></span>
+    <span class="star s6"></span>
+    <span class="star s7"></span>
+    <span class="star s8"></span>
+    <span class="star s9"></span>
+    <span class="star s10"></span>
+    <span class="star s11"></span>
+    <span class="star s12"></span>
+    <span class="star s13"></span>
+    <span class="star s14"></span>
+    <span class="star s15"></span>
+    <span class="star s16"></span>
+  </div>
+
+  <main class="portal">
+
+    <span class="badge glass">St. Alphonsus Catholic School &middot; Lapu&#8209;Lapu City</span>
+
+    <h1 class="title">Teachers&rsquo; Day Portal</h1>
+    <p class="subtitle">Write your letter anytime. Public messages and teacher logins open October 2.</p>
+
+    <section class="countdown glass" aria-live="polite">
+      <p class="countdown-label" id="countdownLabel">Message reveal in</p>
+      <div class="countdown-grid">
+        <div class="countdown-unit">
+          <span class="num" id="days">00</span>
+          <span class="unit-label">days</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit">
+          <span class="num" id="hours">00</span>
+          <span class="unit-label">hrs</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit">
+          <span class="num" id="minutes">00</span>
+          <span class="unit-label">min</span>
+        </div>
+        <span class="countdown-sep">:</span>
+        <div class="countdown-unit">
+          <span class="num" id="seconds">00</span>
+          <span class="unit-label">sec</span>
+        </div>
+      </div>
+    </section>
+    
+    <form class="login-card glass" id="loginForm" action="/login" method="POST">
+      <label for="schoolEmail">Log in with your school email</label>
+      <input
+        type="email"
+        id="schoolEmail"
+        name="email"
+        placeholder="e.g. 1004576@sacs.edu.ph"
+        autocomplete="email"
+        required
+      >
+      <button type="submit" id="loginBtn" class="btn-gold glass">Log In</button>
+      <p class="form-hint">Your letter stays with the teacher you choose until the reveal date above.</p>
+    </form>
+
+  </main>
+
+  <script>
+/**
+ * Teachers' Day Portal - Auth Manager
+ * Fixed: Uses standard browser navigation with CSS fade transitions to prevent execution bugs.
+ */
+
+(function () {
+  'use strict';
+
+  const AUTH_KEY = 'sacs_portal_user';
+
+  function getCurrentUser() {
+    try {
+      return JSON.parse(localStorage.getItem(AUTH_KEY));
+    } catch {
+      return null;
+    }
+  }
+
+  function setCurrentUser(userData) {
+    localStorage.setItem(AUTH_KEY, JSON.stringify(userData));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(AUTH_KEY);
+  }
+
+  function handleLogin(email) {
+    const cleanEmail = email.trim().toLowerCase();
+    const isTeacher = cleanEmail.includes('teacher') || cleanEmail.includes('santos') || !cleanEmail.startsWith('100');
+    
+    const userData = {
+      email: cleanEmail,
+      role: isTeacher ? 'teacher' : 'student',
+      loginTime: Date.now()
+    };
+    
+    setCurrentUser(userData);
+    const destination = userData.role === 'teacher' ? 'teacher_portal.html' : 'compose.html';
+    
+    // Apply smooth fade out, then natively navigate
+    document.body.classList.add('transition-out');
+    setTimeout(() => {
+      window.location.href = destination;
+    }, 300);
+  }
+
+  function attachInterceptors() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailInput = loginForm.querySelector('input[name="email"]');
+        if (emailInput && emailInput.value) {
+          handleLogin(emailInput.value);
+        }
+      });
+    }
+
+    // Intercept standard links for smooth visual exit only (native load)
+    document.querySelectorAll('a[href]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('http') && !href.startsWith('#')) {
+          e.preventDefault();
+          document.body.classList.add('transition-out');
+          setTimeout(() => {
+             window.location.href = href;
+          }, 300);
+        }
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    attachInterceptors();
+    
+    const user = getCurrentUser();
+    const currentPath = window.location.pathname.split('/').pop();
+    
+    if (user && (currentPath === 'login.html' || currentPath === '')) {
+      // Auto-redirect if already logged in
+      const destination = user.role === 'teacher' ? 'teacher_portal.html' : 'compose.html';
+      window.location.href = destination;
+    }
+  });
+
+})();
+
+// --------------------------------------------- COUNTDOWN LOGIC ----------------------------------------------
+const REVEAL_TIME = new Date("2026-10-02T16:00:00+08:00").getTime();
+
+const els = {
+  days: document.getElementById("days"),
+  hours: document.getElementById("hours"),
+  minutes: document.getElementById("minutes"),
+  seconds: document.getElementById("seconds"),
+  label: document.getElementById("countdownLabel"),
+  section: document.querySelector(".countdown"),
+};
+
+let timerId;
+
+function pad(n) {
+  return String(n).padStart(2, "0");
+}
+
+function showRevealed() {
+  clearInterval(timerId);
+  els.days.textContent = "00";
+  els.hours.textContent = "00";
+  els.minutes.textContent = "00";
+  els.seconds.textContent = "00";
+  els.section.classList.add("countdown--open");
+  els.label.textContent = "Public messages are visible and teachers can log in";
+}
+
+function tick() {
+  const remaining = REVEAL_TIME - Date.now();
+  if (remaining <= 0) {
+    showRevealed();
+    return;
+  }
+  const days = Math.floor(remaining / 86400000);
+  const hours = Math.floor((remaining % 86400000) / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
+  const seconds = Math.floor((remaining % 60000) / 1000);
+
+  els.days.textContent = pad(days);
+  els.hours.textContent = pad(hours);
+  els.minutes.textContent = pad(minutes);
+  els.seconds.textContent = pad(seconds);
+}
+
+tick();
+timerId = setInterval(tick, 1000);
+  </script>
+</body>
+</html>
