@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Teachers&rsquo; Day Portal — Messages</title>
 <meta name="description" content="Browse public Teachers' Day messages or write your own letter to a teacher at St. Alphonsus Catholic School.">
+<link rel="icon" href="images/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -53,6 +54,8 @@
 }
 
 html {
+  height: 100%;
+  overflow: hidden;
   scroll-padding-top: env(safe-area-inset-top, 0px);
 }
 
@@ -70,11 +73,13 @@ body {
   transition: background 0.4s ease, opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Page fade. Named page-* so it doesn't collide with the stage transitions, and
-   with no fill-mode so no lingering transform/filter on <body> (which would break
-   the position:fixed "Create a letter" button). */
-body.page-enter { animation: fadeScaleIn 0.4s ease; }
-body.page-exit { opacity: 0; transform: scale(0.98); }
+body.transition-out {
+  opacity: 0;
+  transform: scale(0.98);
+}
+body.transition-in {
+  animation: fadeScaleIn 0.4s ease forwards;
+}
 
 @keyframes fadeScaleIn {
   from { opacity: 0; transform: scale(0.98); }
@@ -236,6 +241,7 @@ body.page-exit { opacity: 0; transform: scale(0.98); }
 }
 
 .btn-gold:hover {
+  transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(242, 183, 5, 0.18);
 }
 
@@ -245,7 +251,7 @@ body.page-exit { opacity: 0; transform: scale(0.98); }
 }
 
 .btn-gold:active {
-  filter: brightness(0.95);
+  transform: translateY(0) scale(0.97);
 }
 
 body.compose {
@@ -255,10 +261,18 @@ body.compose {
   justify-content: flex-start;
   padding: 0;
   width: 100%;
+  height: 100dvh;
   min-height: 100dvh;
-  height: auto;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body.compose::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .topbar {
@@ -332,7 +346,8 @@ body.compose {
 .board {
   position: relative;
   z-index: 1;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -341,6 +356,7 @@ body.compose {
   max-width: 1400px;
   margin: 0 auto;
   padding: 1.25rem 1.5rem 6.5rem;
+  overflow: visible;
 }
 
 .countdown--compact {
@@ -427,17 +443,36 @@ body.compose {
 }
 
 .explorer {
-  flex: 1 0 auto;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   gap: 1rem;
-  min-height: 420px;
+  overflow: visible;
 }
 
-.explorer-nav { display: flex; align-items: center; justify-content: center; gap: 0.6rem; width: 100%; flex-shrink: 0; }
+.explorer-nav {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.explorer > .stage {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  overflow: visible;
+}
 .crumbs { align-self: center; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.25rem; font-size: 0.88rem; color: var(--text-dim); }
 .crumbs button { appearance: none; forced-color-adjust: none; background: none; border: 0; color: inherit; font: inherit; padding: 0.2rem 0.4rem; border-radius: 6px; cursor: pointer; transition: color 0.2s ease; }
 .crumbs button:hover { color: var(--gold-soft); }
@@ -476,9 +511,10 @@ body.compose {
   position: relative;
   width: 100%;
   max-width: 1200px;
-  height: 420px;
-  min-height: 380px;
-  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-shrink: 1;
   perspective: 1100px;
   perspective-origin: 50% 45%;
   user-select: none;
@@ -590,8 +626,6 @@ body.compose {
   pointer-events: none;
 }
 
-.card.is-dim, .letter.is-dim { opacity: 0.18; pointer-events: none; }
-
 .planet-node {
   display: flex;
   flex-direction: column;
@@ -692,6 +726,18 @@ body.compose {
   -webkit-backdrop-filter: blur(6px);
 }
 
+/* Light mode: light label pills with dark text under the planets / teachers */
+@media (prefers-color-scheme: light) {
+  .planet-label,
+  .teacher-label {
+    color: #201a45;
+    text-shadow: none;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(108, 92, 231, 0.28);
+    box-shadow: 0 2px 8px rgba(90, 80, 150, 0.18);
+  }
+}
+
 .stage {
   will-change: opacity, transform, filter, height;
   transform-origin: 50% 50%;
@@ -728,6 +774,12 @@ body.compose {
 .card .dot { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.65), var(--c1) 45%, var(--c2)); }
 .card small { color: var(--text-dim); }
 
+/* List / letters view: extra room at the bottom so the fixed "Create a letter"
+   button never covers the last row and the page can scroll past it. */
+.stage--flow {
+  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+}
+
 .panel-title { margin: 0 0 0.8rem; font: 700 1.3rem/1.2 var(--font-display); }
 .letters { display: grid; gap: 0.8rem; }
 .letter { border-radius: 16px; padding: 1rem 1.1rem; background: var(--bg); color: var(--ink); box-shadow: 0 8px 20px rgba(0,0,0,.25); }
@@ -759,9 +811,19 @@ body.compose {
 .btn-ghost { appearance: none; forced-color-adjust: none; background: transparent; border: 1px solid var(--glass-border); color: var(--text-dim); border-radius: 12px; padding: 0.85rem 1.1rem; font: 600 0.95rem var(--font-body); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
 .btn-ghost:hover { background: rgba(255,255,255,0.25); }
 
+/* Light mode: the Log Out button sits on the purple/gold top bar, so use white text */
+@media (prefers-color-scheme: light) {
+  .topbar .btn-ghost {
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.7);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  }
+  .topbar .btn-ghost:hover { background: rgba(255, 255, 255, 0.25); }
+}
+
 .create-btn {
   position: fixed;
-  z-index: 100;
+  z-index: 1000;
   left: 50%;
   bottom: max(1rem, env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
@@ -771,6 +833,8 @@ body.compose {
   padding: 1rem 1.4rem;
   flex: none;
 }
+.create-btn:hover { transform: translateX(-50%) translateY(-2px); }
+.create-btn:active { transform: translateX(-50%) scale(0.97); }
 
 .glass {
   --mouse-x: 50%;
@@ -801,6 +865,115 @@ body.compose {
 
 @media (prefers-reduced-motion: reduce) {
   .glass, .glass::before, .glass > span { transition: none !important; }
+}
+
+/* ===========================================================
+   Responsive layout fixes
+   =========================================================== */
+@media (max-width: 700px) {
+  .topbar {
+    padding: 0.75rem 0.9rem;
+  }
+
+  .topbar-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "left right"
+      "center center";
+    gap: 0.45rem 0.65rem;
+  }
+
+  .topbar-left {
+    grid-area: left;
+    min-width: 0;
+  }
+
+  .topbar-center {
+    grid-area: center;
+    min-width: 0;
+    text-align: center;
+  }
+
+  .topbar-right {
+    grid-area: right;
+    min-width: 0;
+  }
+
+  .topbar-title {
+    font-size: clamp(1rem, 4.5vw, 1.25rem);
+  }
+
+  .center-greeting {
+    display: block;
+    font-size: clamp(0.9rem, 4vw, 1.15rem);
+    white-space: normal;
+    line-height: 1.2;
+  }
+
+  .badge {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topbar-right .btn-ghost {
+    white-space: nowrap;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.82rem;
+  }
+
+  .explorer-nav {
+    width: 100%;
+  }
+
+  /* The invisible back button was still taking up 32px,
+     which made "All subjects" look off-center. */
+  .back-btn[data-hidden="true"] {
+    display: none;
+  }
+
+  .crumbs {
+    width: 100%;
+    text-align: center;
+  }
+
+  .stage--orbit {
+    width: 100%;
+    max-width: 100%;
+    /* Don't let the flex layout collapse the carousel when the viewport is short.
+       The orbit gets its own responsive canvas instead of inheriting only the
+       small amount of leftover height from the header/toolbar. */
+    flex: 0 0 clamp(260px, 68vw, 460px);
+    height: clamp(260px, 68vw, 460px);
+    min-height: clamp(260px, 68vw, 460px);
+  }
+
+  .orbit-ellipse-bg {
+    width: min(82vw, 850px);
+    height: min(82vw, 850px);
+  }
+}
+
+@media (max-width: 420px) {
+  .board {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .toolbar {
+    gap: 0.45rem;
+  }
+
+  .search-bar {
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+  }
+
+  .seg button {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
 }
 </style>
 </head>
@@ -880,7 +1053,7 @@ body.compose {
       <select id="toSelect" name="to" required></select>
 
       <label for="letterText">Your message</label>
-      <textarea id="letterText" name="text" maxlength="600" placeholder="Type your message here..." required></textarea>
+      <textarea id="letterText" name="text" maxlength="5000" placeholder="Type your message here..." required></textarea>
 
       <label id="paletteLabel">Background color</label>
       <div class="palette" id="palette" role="radiogroup" aria-labelledby="paletteLabel"></div>
@@ -899,32 +1072,51 @@ body.compose {
   </dialog>
 
   <script>
-(function () {
-  'use strict';
-  const AUTH_KEY = 'sacs_portal_user';
-  let user = null;
-  try { user = JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) {}
+/* ===========================================================
+   User Authentication & Context Retrieval from localStorage
+   =========================================================== */
+const AUTH_KEY = 'sacs_portal_user';
+let currentUser = null;
 
-  // Must be logged in as a student to write letters
-  if (!user || !user.email) { window.location.replace('index.html'); return; }
-  if (user.role === 'teacher') { window.location.replace('teacher_portal.html'); return; }
+try { 
+  currentUser = JSON.parse(localStorage.getItem(AUTH_KEY)); 
+} catch (e) {
+  console.error("Error reading user session from localStorage:", e);
+}
 
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      try { localStorage.removeItem(AUTH_KEY); } catch (err) {}
-      document.body.classList.add('page-exit');
-      setTimeout(() => { window.location.href = 'index.html'; }, 300);
-    });
+// Redirect enforcement for student access
+if (!currentUser || !currentUser.email) { 
+  window.location.replace('index.html'); 
+} else if (currentUser.role === 'teacher') { 
+  window.location.replace('teacher_portal.html'); 
+}
+
+// Personalize topbar greeting using email or user name
+document.addEventListener('DOMContentLoaded', () => {
+  const greetingEl = document.getElementById('teacherGreeting');
+  if (greetingEl && currentUser) {
+    const displayName = currentUser.name || currentUser.displayName || currentUser.email.split('@')[0];
+    greetingEl.textContent = `Welcome, ${displayName}!`;
   }
-  window.addEventListener('pageshow', (e) => {
-    if (e.persisted) {
-      document.body.classList.remove('page-exit');
-      if (!localStorage.getItem(AUTH_KEY)) window.location.replace('index.html');
-    }
+});
+
+// Logout action
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    try { localStorage.removeItem(AUTH_KEY); } catch (err) {}
+    document.body.classList.add('page-exit');
+    setTimeout(() => { window.location.href = 'index.html'; }, 300);
   });
-})();
+}
+
+window.addEventListener('pageshow', (e) => {
+  if (e.persisted) {
+    document.body.classList.remove('page-exit');
+    if (!localStorage.getItem(AUTH_KEY)) window.location.replace('index.html');
+  }
+});
 
 /* ===========================================================
    Compose Page Core Engine
@@ -959,7 +1151,7 @@ function showRevealed() {
   if (els.hours) els.hours.textContent = "00";
   if (els.minutes) els.minutes.textContent = "00";
   if (els.seconds) els.seconds.textContent = "00";
-  if (els.section) els.section.classList.add("countdown--open");
+  if (els.section) { els.section.classList.add("countdown--open"); els.section.style.display = "none"; }
   if (els.label) els.label.textContent = "Public messages are visible and teachers can log in";
 }
 
@@ -1041,7 +1233,6 @@ const SUBJECTS = [
   { id: "tle", name: "TLE", c1: "#d4f58a", c2: "#6a9a1f", teachers: [
     { id: "t5", name: "Luel S. Alesna", short: "Alesna" },
     { id: "t30", name: "Alfredo Q. Devocion", short: "Devocion" },
-    { id: "t42", name: "Christine E. Mamotos", short: "Mamotos" },
     { id: "t46", name: "Maria Dolores V. Noval", short: "Noval" },
     { id: "t50", name: "Arden Jose Refulle", short: "Refulle" },
     { id: "t55", name: "Kenneth L. Salas", short: "Salas" },
@@ -1051,12 +1242,21 @@ const SUBJECTS = [
     { id: "t20", name: "Janet N. Campo", short: "Campo" },
     { id: "t23", name: "Nilo E. Castro", short: "Castro" },
     { id: "t36", name: "Jocyl S. Guanzon", short: "Guanzon" },
+    { id: "t42", name: "Christine E. Mamotos", short: "Mamotos" },
     { id: "t54", name: "Renante C. Rocal", short: "Rocal" } ] },
 
   { id: "values", name: "Values Education", c1: "#ffe08a", c2: "#b8860b", teachers: [
     { id: "t27", name: "John Carlo Dacullo", short: "Dacullo" },
     { id: "t63", name: "Charisse Jade A. Tangub", short: "Tangub" } ] },
 
+  { id: "admin", name: "Admin", c1: "#0d1b66", c2: "#0d1b66", teachers: [
+    { id: "t65", name: "Sr. Luisita O. Carreon", short: "Sr. Carreon" },
+    { id: "t66", name: "Sr. Evelyn V. Ortega", short: "Sr. Ortega" },
+    { id: "t67", name: "Sr. Emma Benedicta L. Villanueva", short: "Sr. Villanueva" },
+    { id: "t68", name: "Sr. Charlita O. Llemit", short: "Sr. Llemit" },
+    { id: "t69", name: "Sr. Narcisa M. Borja", short: "Sr. Borja" },
+    { id: "t70", name: "Sr. Marjorie G. Genada", short: "Sr. Genada" },
+    { id: "t41", name: "Eldren Joseph G. Luzano", short: "Luzano" } ] },
   { id: "offices", name: "Non-Teaching Personnel", c1: "#b8c4d6", c2: "#4a5a78", teachers: [
     { id: "offices", name: "Non-Teaching Personnel", short: "Staff" } ] },
 ];
@@ -1176,7 +1376,7 @@ function render3DOrbit(list, isMoon) {
   stage.className = "stage stage--orbit";
   
   const coreHTML = isMoon
-    ? `<div class="core-sun-3d">
+    ? `<div class="core-sun-3d" data-id="${esc(state.subject.id)}">
          <div class="subject-core-globe" style="--c1:${state.subject.c1};--c2:${state.subject.c2}">
            <span class="core-title">${esc(state.subject.name)}</span>
          </div>
@@ -1195,16 +1395,16 @@ function render3DOrbit(list, isMoon) {
   ring.innerHTML = list.map((it, i) => {
     const c = isMoon ? state.subject : it;
     const content = isMoon
-      ? `<button type="button" class="teacher-node" title="${esc(it.name)}">
+      ? `<button type="button" class="teacher-node" data-id="${esc(it.id)}" title="${esc(it.name)}">
            <div class="teacher-avatar" style="--c1:${c.c1};--c2:${c.c2}">${esc(it.short ? it.short.charAt(0) : it.name.charAt(0))}</div>
            <span class="teacher-label">${esc(it.short || it.name)}</span>
          </button>`
-      : `<button type="button" class="planet-node" title="${esc(it.name)}">
+      : `<button type="button" class="planet-node" data-id="${esc(it.id)}" title="${esc(it.name)}">
            <div class="planet-sphere" style="--c1:${c.c1};--c2:${c.c2}"></div>
            <span class="planet-label">${esc(it.name)}</span>
          </button>`;
          
-    return `<div class="carousel-node" data-i="${i}" data-name="${esc(key(it))}">${content}</div>`;
+    return `<div class="carousel-node" data-i="${i}" data-id="${esc(it.id)}" data-name="${esc(key(it))}">${content}</div>`;
   }).join("");
 
   requestAnimationFrame(() => {
@@ -1330,7 +1530,7 @@ function renderGrid(list, moon) {
   stage.innerHTML = `<div class="grid">${list.map((it, i) => {
     const c = moon ? state.subject : it;
     const sub = moon ? (unlocked() ? `${(LETTERS[it.id] || []).length} letters` : "Sealed until reveal") : `${it.teachers.length} teachers`;
-    return `<button type="button" class="card glass" data-i="${i}" data-name="${esc(key(it))}" style="--c1:${c.c1};--c2:${c.c2}"><span class="dot"></span><strong>${esc(it.name)}</strong><small>${sub}</small></button>`;
+    return `<button type="button" class="card glass" data-i="${i}" data-id="${esc(it.id)}" data-name="${esc(key(it))}" style="--c1:${c.c1};--c2:${c.c2}"><span class="dot"></span><strong>${esc(it.name)}</strong><small>${sub}</small></button>`;
   }).join("")}</div>`;
 }
 
@@ -1343,10 +1543,10 @@ function renderLetters() {
   } else {
     const ls = LETTERS[t.id] || [];
     body = ls.length
-      ? `<div class="letters">${ls.map((l) => { const bg = safeColor(l.bg); return `<article class="letter" data-name="${esc((l.text + " " + l.from).toLowerCase())}" style="--bg:${bg};--ink:${inkFor(bg)}"><p>${esc(l.text)}</p><footer>—${esc(l.from)}</footer></article>`; }).join("")}</div>`
+      ? `<div class="letters">${ls.map((l) => { const bg = safeColor(l.bg); return `<article class="letter" data-id="${esc(t.id)}" data-name="${esc((l.text + " " + l.from).toLowerCase())}" style="--bg:${bg};--ink:${inkFor(bg)}"><p>${esc(l.text)}</p><footer>—${esc(l.from)}</footer></article>`; }).join("")}</div>`
       : `<p class="empty">No public letters for ${esc(t.name)} yet.</p>`;
   }
-  stage.innerHTML = `<h2 class="panel-title">${esc(t.name)}</h2>${body}`;
+  stage.innerHTML = `<h2 class="panel-title" data-id="${esc(t.id)}">${esc(t.name)}</h2>${body}`;
 }
 
 function applySearch() {
@@ -1442,7 +1642,7 @@ const PALETTE = ["#ffffff", "#f1f0f7", "#c9c6d6", "#7d7a8c", "#2b2740", "#000000
 const DEFAULT_BG = "#fff1a8";
 const dlg = $("#letterDialog"), form = $("#letterForm"), sel = $("#toSelect"), paper = $("#letterText"), status = $("#formStatus");
 
-sel.innerHTML = SUBJECTS.map((s) => `<optgroup label="${esc(s.name)}">${s.teachers.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("")}</optgroup>`).join("");
+sel.innerHTML = SUBJECTS.map((s) => `<optgroup label="${esc(s.name)}" data-id="${esc(s.id)}">${s.teachers.map((t) => `<option value="${esc(t.id)}" data-id="${esc(t.id)}">${esc(t.name)}</option>`).join("")}</optgroup>`).join("");
 $("#palette").innerHTML = PALETTE.map((c, i) => `<input type="radio" name="bg" id="sw${i}" value="${c}" ${c === DEFAULT_BG ? "checked" : ""}><label for="sw${i}" style="--sw:${c}" title="${c}"></label>`).join("");
 
 function paint() {
@@ -1460,7 +1660,7 @@ $("#createLetterBtn").addEventListener("click", () => {
 $("#cancelLetter").addEventListener("click", () => dlg.close());
 form.anon.addEventListener("change", () => { form.from.disabled = form.anon.checked; });
 
-// Supabase Form Submission Integration
+// Supabase Form Submission Integration with user email from localStorage
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   const recipient = sel.value;
@@ -1468,6 +1668,9 @@ form.addEventListener("submit", async (e) => {
   const senderName = form.anon.checked ? "Anonymous" : (form.from.value.trim() || "Anonymous");
   const isPublic = form.pub.checked;
   const bgColor = form.bg.value;
+
+  // Retrieve logged-in student's email from currentUser object (pulled from localStorage)
+  const studentEmail = (currentUser && currentUser.email) ? currentUser.email : null;
 
   if (!messageText) { 
     status.textContent = "Write something first."; 
@@ -1478,6 +1681,8 @@ form.addEventListener("submit", async (e) => {
 
   try {
     if (!supabaseClient) throw new Error("Supabase client not available");
+    
+    // Insert letter record including sender email from localStorage
     const { error } = await supabaseClient
       .from('letters')
       .insert([
@@ -1485,6 +1690,7 @@ form.addEventListener("submit", async (e) => {
           to_teacher: recipient,
           text: messageText,
           sender: senderName,
+          sender_email: studentEmail,
           is_public: isPublic,
           bg: bgColor
         }
