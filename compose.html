@@ -1529,7 +1529,7 @@ function renderGrid(list, moon) {
   stage.className = "stage stage--flow";
   stage.innerHTML = `<div class="grid">${list.map((it, i) => {
     const c = moon ? state.subject : it;
-    const sub = moon ? (unlocked() ? `${(LETTERS[it.id] || []).length} letters` : "Sealed until reveal") : `${it.teachers.length} teachers`;
+    const sub = moon ? (unlocked() ? `${(LETTERS[it.id] || []).length} letters` : "Sealed until reveal") : (it.id === "offices" ? "Staff" : `${it.teachers.length} teachers`);
     return `<button type="button" class="card glass" data-i="${i}" data-id="${esc(it.id)}" data-name="${esc(key(it))}" style="--c1:${c.c1};--c2:${c.c2}"><span class="dot"></span><strong>${esc(it.name)}</strong><small>${sub}</small></button>`;
   }).join("")}</div>`;
 }
